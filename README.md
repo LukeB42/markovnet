@@ -23,7 +23,7 @@ pip install markovnet
 25
 ```
 
-Subclass instances are tunable:
+Instances of subclasses are tunable:
 ```
 import pprint
 
