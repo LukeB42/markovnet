@@ -12,9 +12,9 @@ pip install markovnet
 >>> d = Func(lambda x: x ** 5)
 
 >>> a.update({b: 50, c: 20, d: 30})
->>> b.update({a: 5,  0, c: 30, d: 30})
->>> c.update({a: 90, 0, c: 20       })
->>> d.update({a: 80, 0, b: 50, c: 20})
+>>> b.update({a: 5,  c: 30, d: 30})
+>>> c.update({a: 90, c: 20       })
+>>> d.update({a: 80, b: 50, c: 20})
 
 >>> net = MarkovNet(a, b, c, d)
 >>> net(5)
