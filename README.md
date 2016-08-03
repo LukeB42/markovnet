@@ -1,7 +1,7 @@
 # markovnet
 Drop-in probabilistic programming.
 
-```python
+```
 >>> from markovnet import MarkovNet, Func
 >>> a = Func(lambda x: x ** 2)
 >>> b = Func(lambda x: x ** 3)
