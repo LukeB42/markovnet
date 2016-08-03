@@ -1,4 +1,7 @@
 # markovnet
+```
+pip install markovnet
+```
 Drop-in probabilistic programming.
 
 ```
@@ -76,10 +79,6 @@ Produces
 {<<function <lambda> at 0x76bd6670> (3 neighbours) at 0x76bd4e10>: 0.47619047619047616,
  <<function <lambda> at 0x76bd65f0> (3 neighbours) at 0x76bd4db0>: 0.2619047619047619,
  <<function <lambda> at 0x76bd6630> (3 neighbours) at 0x76bd4df0>: 0.2619047619047619}
-```
-Also available from PyPI:
-```
-pip install markovnet
 ```
 
 Happy hacking!
