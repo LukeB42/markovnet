@@ -110,6 +110,9 @@ class Func(object):
         self.update(neighbours)
 
     def update(self, neighbours):
+        """
+        Add neighbours to this instance.
+        """
         if isinstance(neighbours, (list, tuple)):
                 for n in neighbours:
                     self.neighbours.update(n.to_dict())
@@ -137,6 +140,11 @@ class Func(object):
         return ProbDist(weights, **{})
     
     def travel(self):
+        """
+        Return a neighbouring function, providing we have neighbours.
+
+        Returns self if no neighbours are found.
+        """
         if not self.neighbours:
             return self
 
@@ -146,9 +154,18 @@ class Func(object):
         return self.probabilities.pick
 
     def to_dict(self):
+        """
+        Use .to_dict to pass singular instances of this class to the .update method.
+
+        """
         return {self: self.proba}
 
     def __call__(self, *args, **kwargs):
+        """
+        Invoke the attached function.
+        """
+        if not self.func:
+            raise Exception("No function associated with %s when __call__ invoked." % repr(self))
         return self.func(*args, **kwargs)
 
     def __repr__(self):
@@ -161,6 +178,9 @@ class MarkovNet(object):
         self.active_node = None
 
     def __call__(self, *args, **kwargs):
+        """
+        Probabilistically select an object that implements Func to return.
+        """
         if not self.active_node:
             self.active_node = random.choice(self.funcs)
         result = self.active_node(*args, **kwargs)
