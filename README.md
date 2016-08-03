@@ -1,8 +1,8 @@
 # markovnet
+Drop-in probabilistic programming.
 ```
 pip install markovnet
 ```
-Drop-in probabilistic programming.
 
 ```
 >>> from markovnet import MarkovNet, Func
