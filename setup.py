@@ -27,7 +27,7 @@ data_files = (
     )
 
 setup(name='markovnet',
-      version="0.0.1",
+      version="0.0.2",
       description='Drop-in probabilistic programming.',
       author='Luke Brooks',
       author_email='luke@psybernetics.org.uk',

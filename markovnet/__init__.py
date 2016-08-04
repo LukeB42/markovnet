@@ -33,7 +33,7 @@
  
  >>> a.update({b: 50, c: 20, d: 30})
  >>> b.update({a: 5,  c: 30, d: 30})
- >>> c.update({a: 90, c: 20       })
+ >>> c.update({a: 90, c: 20})
  >>> d.update({a: 80, b: 50, c: 20})
  
  >>> net = MarkovNet(a, b, c, d)
@@ -82,10 +82,10 @@ class ProbDist(dict):
 
 class Func(object):
     """
-    Associate a function by neighbor nomination likelihoods.
+    Wrap a callable in order to associate it with other functions.
 
     The .gain class attribute can be used to control the base probability
-    of all subclass instances.
+    of selection for all subclass instances.
 
     class XFunc(markovnet.Func):
         gain = -0.3
@@ -94,11 +94,7 @@ class Func(object):
     b = XFunc(lambda x: x ** 4, neighbours=a)
     a.update(b)
 
-    network = Net(a, b)
-    network(5)
     XFunc.gain = 0.9
-    network(5)
-
     """
     gain  = 0.0 
 
@@ -149,7 +145,11 @@ class Func(object):
             return self
 
         if isinstance(self.neighbours, list):
-            return random.choice(self.neighbours)
+            start = {}
+            for node in self.neighbours:
+                start.update(node.to_dict())
+            pdist = ProbDist(start, **{})
+            return pdist.pick
 
         return self.probabilities.pick
 
@@ -172,23 +172,84 @@ class Func(object):
         return "<%s (%i neighbours) at %s>" % \
             (str(self.func), len(self.neighbours), hex(id(self)))
 
-class MarkovNet(object):
+class MarkovNet(list):
     def __init__(self, *args):
-        self.funcs       = args
+        """
+        Implements a callable container that substitutes for its contents
+        either based on a Hidden Markov Model using markovnet.Func, or
+        at random.
+
+        Examples:
+            
+            f = MarkovNet(lambda x: x ** 2, lambda x: x ** 5)
+            f(4) # 16
+            f(4) # 1024
+
+            a = Func(lambda x: x ** 2)
+            b = Func(lambda x: x ** 3)
+            c = Func(lambda x: x ** 4)
+            d = Func(lambda x: x ** 5)
+            a.update({b: 50, c: 20, d: 30})
+            b.update({a: 5,  c: 30, d: 30})
+            c.update({a: 90, c: 20})
+            d.update({a: 80, b: 50, c: 20})
+            f = MarkovNet(a, b, c, d)
+            f(5) # 3125
+            f(5) # 25
+        
+        """
+        if not all(map(lambda x: callable(x), args)):
+            raise Exception("All nodes must have a __call__ method.")
+ 
+        list.__init__(self, args)
         self.active_node = None
 
+    def append(self, func):
+        if not callable(func):
+            raise Exception("%s is not callable." % repr(func))
+        super(MarkovNet, self).append(func)
+
+    def insert(self, index, func):
+        if not callable(func):
+            raise Exception("%s is not callable." % repr(func))
+        super(MarkovNet, self).insert(index, func)
+
+    def extend(self, iterable):
+        for func in iterable:
+            if not callable(func):
+                raise Exception("%s is not callable." % repr(func))
+            super(MarkovNet, self).append(func)
+            
     def __call__(self, *args, **kwargs):
         """
         Probabilistically select an object that implements Func to return.
+       
+        Callables are chosen at random if all members of self don't implement
+        markovnet.Func.
         """
         if not self.active_node:
-            self.active_node = random.choice(self.funcs)
+            # Compute probabilities of all nodes in self implement markovnet.Func,
+            # otherwise pick a callable at random.
+            if all(map(lambda x: hasattr(x, "to_dict"), self)):
+                start = {}
+                for func in self:
+                    start.update(func.to_dict())
+                pdist = ProbDist(start, **{})
+                self.active_node = pdist.pick
+            else:
+                self.active_node = random.choice(self)
+        
         result = self.active_node(*args, **kwargs)
-        self.active_node = self.active_node.travel()
+        
+        if not hasattr(self.active_node, "travel"):
+            self.active_node = None
+        else:
+            self.active_node = self.active_node.travel()
+       
         return result
 
     def __repr__(self):
-        r = "<MarkovNet with "
+        r = "<MarkovNet %s with " % str(list(self))
         if not self.active_node:
             r += "no active node"
         else:

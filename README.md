@@ -13,7 +13,7 @@ pip install markovnet
 
 >>> a.update({b: 50, c: 20, d: 30})
 >>> b.update({a: 5,  c: 30, d: 30})
->>> c.update({a: 90, c: 20       })
+>>> c.update({a: 90, c: 20})
 >>> d.update({a: 80, b: 50, c: 20})
 
 >>> net = MarkovNet(a, b, c, d)
